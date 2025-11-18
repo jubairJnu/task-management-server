@@ -6,6 +6,7 @@ import cors from "cors";
 // import router from "./app/routes";
 import helmet from "helmet";
 import connectWithMongoose from "./database/DatabseConnect";
+import router from "./app/routes";
 
 const app = express();
 
@@ -45,7 +46,7 @@ app.get("/v1", (req, res) => {
   res.send(" 😈 Hello World! ");
 });
 
-// app.use("/api/v1", router);
+app.use("/api/v1", router);
 async function run() {
   try {
     await connectWithMongoose();
