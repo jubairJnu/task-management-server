@@ -1,60 +1,60 @@
-import { NextFunction, Request, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+// import { NextFunction, Request, Response } from "express";
+// import jwt, { JwtPayload } from "jsonwebtoken";
 
-import status from "http-status";
-import AppError from "../errors/APiError";
-import config from "../config";
-import BackendUser from "../modules/backendUsers/BackendUser.Model";
+// import status from "http-status";
+// import AppError from "../errors/APiError";
+// import config from "../config";
 
-const backAuth = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const token = req.headers.authorization;
-    // check if token exist
-    if (!token) {
-      throw new AppError(status.UNAUTHORIZED, "Your are not authorized");
-    }
 
-    let decoded;
+// const backAuth = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const token = req.headers.authorization;
+//     // check if token exist
+//     if (!token) {
+//       throw new AppError(status.UNAUTHORIZED, "Your are not authorized");
+//     }
 
-    try {
-      decoded = jwt.verify(
-        token,
-        config.jwt.access_secret as string
-      ) as JwtPayload;
-    } catch (err) {
-      throw new AppError(status.FORBIDDEN, "Unauthoried access");
-    }
+//     let decoded;
 
-    const { email, iat } = decoded;
+//     try {
+//       decoded = jwt.verify(
+//         token,
+//         config.jwt.access_secret as string
+//       ) as JwtPayload;
+//     } catch (err) {
+//       throw new AppError(status.FORBIDDEN, "Unauthoried access");
+//     }
 
-    // check user
+//     const { email, iat } = decoded;
 
-    const user = await BackendUser.findOne({ email });
+//     // check user
 
-    const isActive = user?.status;
-    // check if the user is active or not
+//     const user = await BackendUser.findOne({ email });
 
-    if (!isActive) {
-      throw new AppError(status.UNAUTHORIZED, "User is not active");
-    }
+//     const isActive = user?.status;
+//     // check if the user is active or not
 
-    // check if the token generate before chage password?
-    if (
-      user.passwordChangedAt &&
-      BackendUser.isJWTIssuedBeforePasswordChanged(
-        user.passwordChangedAt,
-        iat as number
-      )
-    ) {
-      throw new AppError(status.UNAUTHORIZED, "You are not authorized !");
-    }
+//     if (!isActive) {
+//       throw new AppError(status.UNAUTHORIZED, "User is not active");
+//     }
 
-    req.user = decoded;
-    next();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    next(error);
-  }
-};
+//     // check if the token generate before chage password?
+//     if (
+//       user.passwordChangedAt &&
+//       BackendUser.isJWTIssuedBeforePasswordChanged(
+//         user.passwordChangedAt,
+//         iat as number
+//       )
+//     ) {
+//       throw new AppError(status.UNAUTHORIZED, "You are not authorized !");
+//     }
 
-export default backAuth;
+//     req.user = decoded;
+//     next();
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// export default backAuth;

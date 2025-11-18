@@ -33,7 +33,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
   })
 );
-app.options("*", cors());
+app.options("/", cors());
 
 // app.use(bodyParser.json());
 
