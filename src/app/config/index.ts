@@ -6,10 +6,7 @@ export default {
   env: process.env.NODE_MODULE,
   port: process.env.PORT,
   solt: process.env.SOLT_ROUND,
-  database_url:
-    process.env.NODE_MODULE === "production"
-      ? process.env.DATABASE_URL_PROD
-      : process.env.DATABASE_URL,
+  database_url: process.env.DATABASE_URL,
 
   fronted_url:
     process.env.NODE_MODULE === "development"
