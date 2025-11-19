@@ -60,18 +60,19 @@ const login = async (payload: any) => {
 
 // change password========================
 
-
-
 //generate acces token usig refresh token===================
 
-const refreshToken = async (token:string) => {
+const refreshToken = async (token: string) => {
   if (!token) {
     throw new AppError(status.UNAUTHORIZED, "Your are not authorized");
   }
 
   // if token is valid or not
 
-  const decoded = jwtHelpers.verifyToken(token, config.jwt.refresh_secret as Secret);
+  const decoded = jwtHelpers.verifyToken(
+    token,
+    config.jwt.refresh_secret as Secret
+  );
 
   const { email, iat } = decoded;
 
@@ -80,25 +81,21 @@ const refreshToken = async (token:string) => {
   // check user
 
   if (!user) {
-    throw new AppError(status.NOT_FOUND, "User not found !";
+    throw new AppError(status.NOT_FOUND, "User not found !");
   }
-
-
-
-
-
 
   const jwtPayload = {
     id: user._id,
-    email: user.email, 
+    email: user.email,
     name: user.name,
-
   };
 
   // create jwt access token
 
-  const accessToken = jwtHelpers.generateAccessToken(jwtPayload, config.jwt.access_secret as Secret, 
-    config.jwt.expire_in as string ,
+  const accessToken = jwtHelpers.generateAccessToken(
+    jwtPayload,
+    config.jwt.access_secret as Secret,
+    config.jwt.expire_in as string
   );
 
   // return
@@ -108,12 +105,9 @@ const refreshToken = async (token:string) => {
   };
 };
 
-
-
-
 // exports
 
 export const authServices = {
   login,
-refreshToken
+  refreshToken,
 };

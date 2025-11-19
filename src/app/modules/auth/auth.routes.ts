@@ -1,17 +1,12 @@
 import express from "express";
 
 import { backendAuthControllers } from "./auth.controller";
-import backAuth from "../../middleware/Backend.Auth";
+import auth from "../../middleware/auth";
 
 const router = express.Router();
 
 router.post("/login", backendAuthControllers.loginUser);
-router.patch(
-  "/change-password",
-  backAuth,
-  backendAuthControllers.changeUserPassword
-);
 
-router.patch("/reset-password", backAuth, backendAuthControllers.resetPassword);
+router.patch("/refresh-token", auth, backendAuthControllers.refreshToken);
 
-export const backendAuthRoutes = router;
+export const authRoutes = router;

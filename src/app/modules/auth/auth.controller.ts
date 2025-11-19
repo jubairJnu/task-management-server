@@ -2,17 +2,17 @@
 
 import status from "http-status";
 
-import { backendAuthServices } from "./auth.Service";
 import catchAsync from "../../../utils/catchAsync";
 import sendResponse from "../../../utils/sendResponse";
-import { Request, Response } from "express";
-import { IAuthenticatedRequest } from "../../interface/authenticate";
 
-const loginUser = catchAsync(async (req: any, res: any) => {
-  const result = await backendAuthServices.login(req.body);
+import { authServices } from "./auth.Service";
+import { Request, Response } from "express";
+
+const loginUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await authServices.login(req.body);
   // destructure result to send frontend
 
-  const { refreshToken, accessToken, needsPasswordChange } = result;
+  const { refreshToken, accessToken } = result;
   res.cookie("refreshToken", refreshToken, {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
@@ -22,87 +22,31 @@ const loginUser = catchAsync(async (req: any, res: any) => {
     success: true,
     statusCode: status.OK,
     message: "User Login Successfully",
-    data: { accessToken, needsPasswordChange },
+    data: { accessToken },
   });
 });
 
 // change pasword
 
-const changeUserPassword = catchAsync(
-  async (req: IAuthenticatedRequest, res: Response) => {
-    const { id } = req.user as any;
-
-    const result = await backendAuthServices.changePassword(req.body, id);
-
-    sendResponse(res, {
-      success: true,
-      statusCode: status.OK,
-      message: "Password is Updated successfully",
-      data: result,
-    });
-  }
-);
-
 // refreshToken
 
-// const refreshToken = async (req, res) => {
-//   try {
-//     const { refreshToken } = req.cookies;
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const { refreshToken } = req.cookies;
 
-//     const result = await authServices.refreshToken(refreshToken);
-//     res.status(200).json({
-//       success: true,
-//       message: "Access token is retrived successfully",
-//       data: result,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error?.message,
-//     });
-//   }
-// };
-
-// // forgot pasword
-
-// const forgotPassword = async (req, res) => {
-//   try {
-//     const { phone } = req.body;
-
-//     const result = await authServices.forgotPassword(phone);
-//     res.status(200).json({
-//       success: true,
-//       message: "OTP Sent  successfully",
-//       data: result,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error?.message,
-//     });
-//   }
-// };
-
-const resetPassword = catchAsync(async (req: Request, res: Response) => {
-  const { role } = req.user as any;
-
-  const result = await backendAuthServices.resetAdminPasswordFromDB(
-    req.body,
-    role
-  );
-
+  const result = await authServices.refreshToken(refreshToken);
   sendResponse(res, {
-    statusCode: 200,
     success: true,
-    message: "Password reset successfully",
+    statusCode: 200,
+    message: "generate token",
     data: result,
   });
 });
+
+// // forgot pasword
 
 // exports
 
 export const backendAuthControllers = {
   loginUser,
-  changeUserPassword,
-  resetPassword,
+  refreshToken,
 };
