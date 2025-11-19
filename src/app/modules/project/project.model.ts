@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import { IProject } from "./project.interface";
 
 const projectSchema = new Schema<IProject>(
@@ -15,3 +15,5 @@ const projectSchema = new Schema<IProject>(
     timestamps: true,
   }
 );
+
+export const Project = model("Project", projectSchema);
