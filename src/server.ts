@@ -1,9 +1,10 @@
 import { Server } from "http";
-import app from "./app";
+
 
 import config from "./app/config";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import notFound from "./app/middleware/notFound";
+import app from "./app";
 
 const port = config.port || 3000;
 
