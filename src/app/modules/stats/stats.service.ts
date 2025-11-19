@@ -3,7 +3,7 @@ import { Reassign } from "../Reassign/reassign.model";
 import { Task } from "../task/task.model";
 import { Team } from "../team/team.model";
 
-const getSummeryFromDB = async () => {
+export const getSummeryFromDB = async () => {
   const totalProjects = await Project.countDocuments();
 
   const totalTasks = await Task.countDocuments();

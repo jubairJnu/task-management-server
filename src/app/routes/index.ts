@@ -5,6 +5,7 @@ import { porjectRoutes } from "../modules/project/project.routes";
 import { taskRoutes } from "../modules/task/task.routs";
 import { authRoutes } from "../modules/auth/auth.routes";
 import { reassignRoutes } from "../modules/Reassign/reassgin.routes";
+import { statsRoutes } from "../modules/stats/stats.routes";
 
 const router = Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     route: "/reassign",
     module: reassignRoutes,
+  },
+  {
+    route: "/stats",
+    module: statsRoutes,
   },
 ];
 
