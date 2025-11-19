@@ -14,11 +14,12 @@ import { jwtHelpers } from "../../../helper/jwtHelpers";
 dotenv.config();
 
 const login = async (payload: any) => {
+  console.log(payload, "payload");
   const isExistUser = await User.findOne({
     email: payload?.email,
-  })
-    .select("+password")
-    .populate("role", "name");
+  }).select("+password");
+
+  console.log(isExistUser, "user");
 
   // check if use exist or not
   if (!isExistUser) {

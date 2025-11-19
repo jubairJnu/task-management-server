@@ -25,9 +25,6 @@ app.use(
       "http://localhost:5173",
       "https://ca-consumer.vercel.app",
       "http://localhost:3000",
-      "https://ca-client-zeta.vercel.app",
-      "https://www.careeraidbd.com",
-      "https://www.cabd.work",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], // Include OPTIONS
