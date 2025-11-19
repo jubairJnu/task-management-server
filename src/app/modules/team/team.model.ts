@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import { ITeam } from "./team.interface";
 
 const teamMemberSchema = new Schema({
@@ -35,3 +35,5 @@ const teamSchema = new Schema<ITeam>(
     timestamps: true,
   }
 );
+
+export const Team = model("Team", teamSchema);
