@@ -23,7 +23,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://ca-consumer.vercel.app",
+      "https://task-client-chi-smoky.vercel.app",
       "http://localhost:3000",
     ],
     credentials: true,
