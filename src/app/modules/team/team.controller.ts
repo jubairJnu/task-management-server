@@ -12,6 +12,15 @@ const createTeam = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getTeam = catchAsync(async (req: Request, res: Response) => {
+  const result = await teamServices.getTeamFromDB();
+  sendResponse(res, {
+    success: true,
+    message: "team retrived",
+    statusCode: 200,
+    data: result,
+  });
+});
 
 const updateTeam = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -26,5 +35,6 @@ const updateTeam = catchAsync(async (req: Request, res: Response) => {
 
 export const teamControllers = {
   createTeam,
+  getTeam,
   updateTeam,
 };
