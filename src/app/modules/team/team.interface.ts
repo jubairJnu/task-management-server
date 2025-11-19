@@ -1,4 +1,7 @@
+import { Types } from "mongoose";
+
 export interface ITeamMember {
+  _id: Types.ObjectId;
   name: string;
   role: string;
   capacity: number;
