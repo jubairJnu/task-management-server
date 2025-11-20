@@ -40,7 +40,6 @@ const createTaskIntoDB = async (payload: ITask) => {
 const getTaskIntoDB = async (query: Record<string, any>) => {
   // convert to normal object
 
-
   const { projectId, assignedMemberId } = query;
   const matchObj: Record<string, any> = {};
 
@@ -90,7 +89,7 @@ const getTaskIntoDB = async (query: Record<string, any>) => {
         description: 1,
         priority: 1,
         status: 1,
-
+        projectId: 1,
         assignedMemberId: 1,
         assignedMemberName: "$assignedMember.name",
       },
@@ -99,7 +98,53 @@ const getTaskIntoDB = async (query: Record<string, any>) => {
 };
 
 const updateTaskIntoDB = async (id: string, payload: Partial<ITask>) => {
-  return await Task.findByIdAndUpdate(id, payload, { new: true });
+  const session = await startSession();
+  try {
+    session.startTransaction();
+
+    const oldTask = await Task.findById(id)
+      .select("assignedMemberId")
+      .session(session);
+
+    if (!oldTask) {
+      throw new Error("Task not found");
+    }
+
+    const oldAssignedMemberId = oldTask.assignedMemberId;
+    const newAssignedMemberId = payload.assignedMemberId;
+
+    if (
+      newAssignedMemberId &&
+      oldAssignedMemberId?.toString() !== newAssignedMemberId.toString()
+    ) {
+      if (oldAssignedMemberId) {
+        await Team.findOneAndUpdate(
+          { "members._id": oldAssignedMemberId },
+          { $inc: { "members.$.currentTasks": -1 } },
+          { session }
+        );
+      }
+
+      await Team.findOneAndUpdate(
+        { "members._id": newAssignedMemberId },
+        { $inc: { "members.$.currentTasks": 1 } },
+        { session }
+      );
+    }
+
+    const result = await Task.findByIdAndUpdate(id, payload, {
+      session,
+      new: true,
+    });
+
+    await session.commitTransaction();
+    return result;
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
 };
 
 export const taskServices = {
