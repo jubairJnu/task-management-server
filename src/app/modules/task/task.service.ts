@@ -161,7 +161,7 @@ const deleteTaskFromDB = async (id: string) => {
       { session }
     );
 
-    const result = await Task.findByIdAndDelete(id);
+    const result = await Task.findByIdAndDelete(id, { session });
     await session.commitTransaction();
     return result;
   } catch (err) {
