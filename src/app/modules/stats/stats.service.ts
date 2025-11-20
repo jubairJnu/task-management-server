@@ -8,24 +8,85 @@ export const getSummeryFromDB = async () => {
 
   const totalTasks = await Task.countDocuments();
 
-  const teams = await Team.find({});
+  const teamSummary = await Team.aggregate([
+    { $unwind: "$members" },
 
-  const teamSummary = teams.flatMap((team) =>
-    team.members.map((member) => ({
-      _id: member._id,
-      name: member.name,
-      role: member.role,
-      capacity: member.capacity,
-      currentTasks: member.currentTasks,
-      isOverloaded: member.currentTasks > member.capacity,
-    }))
-  );
+    {
+      $lookup: {
+        from: "tasks",
+        localField: "members._id",
+        foreignField: "assignedMemberId",
+        as: "tasks",
+      },
+    },
 
-  // --- Recent Reassignments ---
-  const recentReassignments = await Reassign.find({})
-    .sort({ createdAt: -1 })
-    .limit(5)
-    .populate("taskId", "title");
+    {
+      $project: {
+        _id: "$members._id",
+        name: "$members.name",
+        role: "$members.role",
+        capacity: "$members.capacity",
+        currentTasks: "$members.currentTasks",
+        isOverloaded: {
+          $gt: ["$members.currentTasks", "$members.capacity"],
+        },
+        tasks: 1,
+      },
+    },
+  ]);
+
+  const recentReassignments = await Reassign.aggregate([
+    { $sort: { createdAt: -1 } },
+    { $limit: 5 },
+
+    {
+      $lookup: {
+        from: "tasks",
+        localField: "taskId",
+        foreignField: "_id",
+        as: "task",
+      },
+    },
+    { $unwind: "$task" },
+
+    {
+      $lookup: {
+        from: "teams",
+        let: { memberId: "$fromMemberId" },
+        pipeline: [
+          { $unwind: "$members" },
+          { $match: { $expr: { $eq: ["$members._id", "$$memberId"] } } },
+          { $project: { member: "$members" } },
+        ],
+        as: "from",
+      },
+    },
+    { $unwind: "$from" },
+
+    {
+      $lookup: {
+        from: "teams",
+        let: { memberId: "$toMemberId" },
+        pipeline: [
+          { $unwind: "$members" },
+          { $match: { $expr: { $eq: ["$members._id", "$$memberId"] } } },
+          { $project: { member: "$members" } },
+        ],
+        as: "to",
+      },
+    },
+    { $unwind: "$to" },
+
+    {
+      $project: {
+        _id: 1,
+        createdAt: 1,
+        task: { _id: "$task._id", title: "$task.title" },
+        fromMember: "$from.member",
+        toMember: "$to.member",
+      },
+    },
+  ]);
 
   const data = {
     totalProjects,
