@@ -37,9 +37,67 @@ const createTaskIntoDB = async (payload: ITask) => {
   }
 };
 
-const getTaskIntoDB = async () => {
-  return await Task.find();
+const getTaskIntoDB = async (query: Record<string, any>) => {
+  // convert to normal object
+
+
+  const { projectId, assignedMemberId } = query;
+  const matchObj: Record<string, any> = {};
+
+  if (projectId) matchObj.projectId = new mongoose.Types.ObjectId(projectId);
+  if (assignedMemberId)
+    matchObj.assignedMemberId = new mongoose.Types.ObjectId(assignedMemberId);
+
+  return await Task.aggregate([
+    {
+      $match: matchObj,
+    },
+    {
+      $lookup: {
+        from: "teams",
+        localField: "assignedMemberId",
+        foreignField: "members._id",
+        as: "teamInfo",
+      },
+    },
+    {
+      $unwind: {
+        path: "$teamInfo",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        assignedMember: {
+          $filter: {
+            input: "$teamInfo.members",
+            as: "m",
+            cond: { $eq: ["$$m._id", "$assignedMemberId"] },
+          },
+        },
+      },
+    },
+    {
+      $unwind: {
+        path: "$assignedMember",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        description: 1,
+        priority: 1,
+        status: 1,
+
+        assignedMemberId: 1,
+        assignedMemberName: "$assignedMember.name",
+      },
+    },
+  ]);
 };
+
 const updateTaskIntoDB = async (id: string, payload: Partial<ITask>) => {
   return await Task.findByIdAndUpdate(id, payload, { new: true });
 };

@@ -15,7 +15,7 @@ const taskSchema = new Schema<ITask>(
     },
     assignedMemberId: {
       type: Schema.Types.ObjectId,
-      ref: "Team.members",
+      ref: "Team",
       default: null,
     },
     priority: {

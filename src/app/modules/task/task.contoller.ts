@@ -14,7 +14,7 @@ const createTask = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getTask = catchAsync(async (req: Request, res: Response) => {
-  const result = await taskServices.getTaskIntoDB();
+  const result = await taskServices.getTaskIntoDB(req.query);
   sendResponse(res, {
     success: true,
     statusCode: 200,
