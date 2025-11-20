@@ -33,9 +33,20 @@ const updateTask = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const deleteTask = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await taskServices.deleteTaskFromDB(id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Task deleted",
+    data: result,
+  });
+});
 
 export const taskControllers = {
   createTask,
   getTask,
   updateTask,
+  deleteTask,
 };

@@ -147,8 +147,34 @@ const updateTaskIntoDB = async (id: string, payload: Partial<ITask>) => {
   }
 };
 
+const deleteTaskFromDB = async (id: string) => {
+  const session = await startSession();
+  try {
+    session.startTransaction();
+
+    const oldTask = await Task.findById(id)
+      .select("assignedMemberId")
+      .session(session);
+    await Team.findOneAndUpdate(
+      { "members._id": oldTask?.assignedMemberId },
+      { $inc: { "members.$.currentTasks": -1 } },
+      { session }
+    );
+
+    const result = await Task.findByIdAndDelete(id);
+    await session.commitTransaction();
+    return result;
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
+};
+
 export const taskServices = {
   createTaskIntoDB,
   updateTaskIntoDB,
   getTaskIntoDB,
+  deleteTaskFromDB,
 };
